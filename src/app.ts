@@ -1,1 +1,3 @@
-console.log("Hello, Dragon!");
+import { gameConfig } from "./config";
+
+new Phaser.Game(gameConfig);
