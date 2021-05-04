@@ -22,9 +22,9 @@ export class StartScene extends Phaser.Scene {
             BrowserResolution.WIDTH / 2,
             BrowserResolution.HEIGHT / 2,
             "Tap to start",
-            { fontFamily: "CurseCasual", fontSize: "60px", color: "#E62B0D", stroke: "#000000", strokeThickness: 3 }
+            { fontFamily: "CurseCasual", fontSize: "60px", color: "#E62B0D", stroke: "#000000", strokeThickness: 3, }
         ).setOrigin(0.5);
-        this._tapText?.setInteractive(); // make text clickable
+        this._tapText?.setInteractive({useHandCursor: true}); // make text clickable and with cursor on hover
         this._tapText?.on("pointerdown", () => this.showGameScene());
     }
 

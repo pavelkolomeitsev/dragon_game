@@ -6,6 +6,10 @@ import { BrowserResolution } from "./utils";
 
 export const gameConfig: object = {
     type: Phaser.AUTO,
+    physics: {
+        default: "arcade",
+        arcade: { debug: false}
+    },
     width: BrowserResolution.WIDTH,
     height: BrowserResolution.HEIGHT,
     scene: [

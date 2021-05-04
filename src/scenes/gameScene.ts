@@ -1,13 +1,26 @@
+import { Dragon } from "../prefabs/dragon";
+
 export class GameScene extends Phaser.Scene {
+    private _dragon: Dragon | undefined;
+    public cursors: Phaser.Types.Input.Keyboard.CursorKeys | undefined;
+
     constructor() {
         super({key: "game-scene"});
     }
 
     protected create() {
         this.createBackground();
+        // hold in object "cursors" boardkeys - left, right, up, down, space, shift 
+        this.cursors = this.input.keyboard.createCursorKeys();
+        this._dragon = new Dragon(this, this.cursors); // pass this cursors to dragon for control of it
     }
 
     private createBackground(): void {
         this.add.sprite(0, 0, "bg").setOrigin(0, 0);
+    }
+
+    // this method is executed every millisecond
+    public update() {
+        this._dragon?.move();
     }
 }

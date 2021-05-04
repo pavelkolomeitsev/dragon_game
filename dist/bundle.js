@@ -18,6 +18,10 @@ var gameScene_1 = __webpack_require__(/*! ./scenes/gameScene */ "./src/scenes/ga
 var utils_1 = __webpack_require__(/*! ./utils */ "./src/utils.ts");
 exports.gameConfig = {
     type: Phaser.AUTO,
+    physics: {
+        default: "arcade",
+        arcade: { debug: false }
+    },
     width: utils_1.BrowserResolution.WIDTH,
     height: utils_1.BrowserResolution.HEIGHT,
     scene: [
@@ -27,6 +31,73 @@ exports.gameConfig = {
         new gameScene_1.GameScene()
     ]
 };
+
+
+/***/ }),
+
+/***/ "./src/prefabs/dragon.ts":
+/*!*******************************!*\
+  !*** ./src/prefabs/dragon.ts ***!
+  \*******************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Dragon = void 0;
+var utils_1 = __webpack_require__(/*! ../utils */ "./src/utils.ts");
+var Dragon = (function (_super) {
+    __extends(Dragon, _super);
+    function Dragon(scene, cursors) {
+        var _this = _super.call(this, scene, utils_1.StartPosition.x, utils_1.StartPosition.y, "dragon", "dragon1") || this;
+        _this.scene = scene;
+        _this._cursors = cursors;
+        _this.init();
+        return _this;
+    }
+    Dragon.prototype.init = function () {
+        this.scene.add.existing(this);
+        this.scene.physics.add.existing(this);
+        this.body.enable = true;
+    };
+    Dragon.prototype.move = function () {
+        var _a, _b, _c, _d, _e, _f;
+        if ((_a = this._cursors) === null || _a === void 0 ? void 0 : _a.left.isDown) {
+            console.log("Left key is pressed!");
+        }
+        else if ((_b = this._cursors) === null || _b === void 0 ? void 0 : _b.right.isDown) {
+            console.log("Right key is pressed!");
+        }
+        else if ((_c = this._cursors) === null || _c === void 0 ? void 0 : _c.down.isDown) {
+            console.log("Down key is pressed!");
+        }
+        else if ((_d = this._cursors) === null || _d === void 0 ? void 0 : _d.up.isDown) {
+            console.log("Up key is pressed!");
+        }
+        else if ((_e = this._cursors) === null || _e === void 0 ? void 0 : _e.space.isDown) {
+            console.log("Space key is pressed!");
+        }
+        else if ((_f = this._cursors) === null || _f === void 0 ? void 0 : _f.shift.isDown) {
+            console.log("Shift key is pressed!");
+        }
+    };
+    return Dragon;
+}(Phaser.GameObjects.Sprite));
+exports.Dragon = Dragon;
 
 
 /***/ }),
@@ -77,7 +148,7 @@ exports.BootScene = BootScene;
 /*!*********************************!*\
   !*** ./src/scenes/gameScene.ts ***!
   \*********************************/
-/***/ (function(__unused_webpack_module, exports) {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
 var __extends = (this && this.__extends) || (function () {
@@ -97,6 +168,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.GameScene = void 0;
+var dragon_1 = __webpack_require__(/*! ../prefabs/dragon */ "./src/prefabs/dragon.ts");
 var GameScene = (function (_super) {
     __extends(GameScene, _super);
     function GameScene() {
@@ -104,9 +176,15 @@ var GameScene = (function (_super) {
     }
     GameScene.prototype.create = function () {
         this.createBackground();
+        this.cursors = this.input.keyboard.createCursorKeys();
+        this._dragon = new dragon_1.Dragon(this, this.cursors);
     };
     GameScene.prototype.createBackground = function () {
         this.add.sprite(0, 0, "bg").setOrigin(0, 0);
+    };
+    GameScene.prototype.update = function () {
+        var _a;
+        (_a = this._dragon) === null || _a === void 0 ? void 0 : _a.move();
     };
     return GameScene;
 }(Phaser.Scene));
@@ -145,6 +223,7 @@ var PreloadScene = (function (_super) {
         return _super.call(this, { key: "preload-scene" }) || this;
     }
     PreloadScene.prototype.preload = function () {
+        this.load.atlas("dragon", "assets/images/dragon.png", "assets/images/dragon.json");
     };
     PreloadScene.prototype.create = function () {
         this.scene.start("start-scene");
@@ -196,8 +275,8 @@ var StartScene = (function (_super) {
     StartScene.prototype.createText = function () {
         var _this = this;
         var _a, _b;
-        this._tapText = this.add.text(utils_1.BrowserResolution.WIDTH / 2, utils_1.BrowserResolution.HEIGHT / 2, "Tap to start", { fontFamily: "CurseCasual", fontSize: "60px", color: "#E62B0D", stroke: "#000000", strokeThickness: 3 }).setOrigin(0.5);
-        (_a = this._tapText) === null || _a === void 0 ? void 0 : _a.setInteractive();
+        this._tapText = this.add.text(utils_1.BrowserResolution.WIDTH / 2, utils_1.BrowserResolution.HEIGHT / 2, "Tap to start", { fontFamily: "CurseCasual", fontSize: "60px", color: "#E62B0D", stroke: "#000000", strokeThickness: 3, }).setOrigin(0.5);
+        (_a = this._tapText) === null || _a === void 0 ? void 0 : _a.setInteractive({ useHandCursor: true });
         (_b = this._tapText) === null || _b === void 0 ? void 0 : _b.on("pointerdown", function () { return _this.showGameScene(); });
     };
     StartScene.prototype.showGameScene = function () {
@@ -218,12 +297,18 @@ exports.StartScene = StartScene;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.BrowserResolution = void 0;
+exports.StartPosition = exports.BrowserResolution = void 0;
 var BrowserResolution;
 (function (BrowserResolution) {
     BrowserResolution[BrowserResolution["WIDTH"] = 1536] = "WIDTH";
     BrowserResolution[BrowserResolution["HEIGHT"] = 726] = "HEIGHT";
 })(BrowserResolution = exports.BrowserResolution || (exports.BrowserResolution = {}));
+var StartPosition;
+(function (StartPosition) {
+    StartPosition[StartPosition["x"] = 150] = "x";
+    StartPosition[StartPosition["y"] = 363] = "y";
+})(StartPosition = exports.StartPosition || (exports.StartPosition = {}));
+;
 
 
 /***/ })
