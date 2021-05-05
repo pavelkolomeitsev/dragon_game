@@ -8,11 +8,14 @@ export class GameScene extends Phaser.Scene {
         super({key: "game-scene"});
     }
 
+    protected init() {
+        this.cursors = this.input.keyboard.createCursorKeys();
+    }
+
     protected create() {
         this.createBackground();
-        // hold in object "cursors" boardkeys - left, right, up, down, space, shift 
-        this.cursors = this.input.keyboard.createCursorKeys();
-        this._dragon = new Dragon(this, this.cursors); // pass this cursors to dragon for control of it
+        // hold in object "cursors" boardkeys - left, right, up, down, space, shift
+        this._dragon = new Dragon(this, this.cursors); // pass these cursors to dragon for control of it
     }
 
     private createBackground(): void {

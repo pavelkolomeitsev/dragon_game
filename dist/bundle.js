@@ -60,6 +60,8 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Dragon = void 0;
 var utils_1 = __webpack_require__(/*! ../utils */ "./src/utils.ts");
+var utils_2 = __webpack_require__(/*! ../utils */ "./src/utils.ts");
+var utils_3 = __webpack_require__(/*! ../utils */ "./src/utils.ts");
 var Dragon = (function (_super) {
     __extends(Dragon, _super);
     function Dragon(scene, cursors) {
@@ -76,22 +78,32 @@ var Dragon = (function (_super) {
     };
     Dragon.prototype.move = function () {
         var _a, _b, _c, _d, _e, _f;
+        this.body.setVelocityX(0);
+        this.body.setVelocityY(0);
         if ((_a = this._cursors) === null || _a === void 0 ? void 0 : _a.left.isDown) {
-            console.log("Left key is pressed!");
+            if (this.body.x < 0)
+                return;
+            this.body.setVelocityX(-utils_3.DRAGON_SPEED);
         }
         else if ((_b = this._cursors) === null || _b === void 0 ? void 0 : _b.right.isDown) {
-            console.log("Right key is pressed!");
+            if (this.body.x > utils_2.BrowserResolution.WIDTH - 160)
+                return;
+            this.body.setVelocityX(utils_3.DRAGON_SPEED);
         }
-        else if ((_c = this._cursors) === null || _c === void 0 ? void 0 : _c.down.isDown) {
-            console.log("Down key is pressed!");
+        if ((_c = this._cursors) === null || _c === void 0 ? void 0 : _c.down.isDown) {
+            if (this.body.y > utils_2.BrowserResolution.HEIGHT - 120)
+                return;
+            this.body.setVelocityY(utils_3.DRAGON_SPEED);
         }
         else if ((_d = this._cursors) === null || _d === void 0 ? void 0 : _d.up.isDown) {
-            console.log("Up key is pressed!");
+            if (this.body.y < 0)
+                return;
+            this.body.setVelocityY(-utils_3.DRAGON_SPEED);
         }
-        else if ((_e = this._cursors) === null || _e === void 0 ? void 0 : _e.space.isDown) {
+        if ((_e = this._cursors) === null || _e === void 0 ? void 0 : _e.space.isDown) {
             console.log("Space key is pressed!");
         }
-        else if ((_f = this._cursors) === null || _f === void 0 ? void 0 : _f.shift.isDown) {
+        if ((_f = this._cursors) === null || _f === void 0 ? void 0 : _f.shift.isDown) {
             console.log("Shift key is pressed!");
         }
     };
@@ -174,9 +186,11 @@ var GameScene = (function (_super) {
     function GameScene() {
         return _super.call(this, { key: "game-scene" }) || this;
     }
+    GameScene.prototype.init = function () {
+        this.cursors = this.input.keyboard.createCursorKeys();
+    };
     GameScene.prototype.create = function () {
         this.createBackground();
-        this.cursors = this.input.keyboard.createCursorKeys();
         this._dragon = new dragon_1.Dragon(this, this.cursors);
     };
     GameScene.prototype.createBackground = function () {
@@ -297,7 +311,7 @@ exports.StartScene = StartScene;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.StartPosition = exports.BrowserResolution = void 0;
+exports.DRAGON_SPEED = exports.StartPosition = exports.BrowserResolution = void 0;
 var BrowserResolution;
 (function (BrowserResolution) {
     BrowserResolution[BrowserResolution["WIDTH"] = 1536] = "WIDTH";
@@ -309,6 +323,7 @@ var StartPosition;
     StartPosition[StartPosition["y"] = 363] = "y";
 })(StartPosition = exports.StartPosition || (exports.StartPosition = {}));
 ;
+exports.DRAGON_SPEED = 500;
 
 
 /***/ })
