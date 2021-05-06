@@ -3,6 +3,11 @@ export enum BrowserResolution {
     HEIGHT = 726
 }
 
+// export enum BackgroundResolution {
+//     WIDTH = 2048,
+//     HEIGHT = 720
+// }
+
 export enum StartPosition {
     x = 150,
     y = BrowserResolution.HEIGHT / 2

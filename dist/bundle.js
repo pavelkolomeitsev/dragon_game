@@ -181,6 +181,7 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.GameScene = void 0;
 var dragon_1 = __webpack_require__(/*! ../prefabs/dragon */ "./src/prefabs/dragon.ts");
+var utils_1 = __webpack_require__(/*! ../utils */ "./src/utils.ts");
 var GameScene = (function (_super) {
     __extends(GameScene, _super);
     function GameScene() {
@@ -194,11 +195,13 @@ var GameScene = (function (_super) {
         this._dragon = new dragon_1.Dragon(this, this.cursors);
     };
     GameScene.prototype.createBackground = function () {
-        this.add.sprite(0, 0, "bg").setOrigin(0, 0);
+        this._bg = this.add.tileSprite(0, 0, utils_1.BrowserResolution.WIDTH, utils_1.BrowserResolution.HEIGHT, "bg").setOrigin(0, 0);
     };
     GameScene.prototype.update = function () {
         var _a;
         (_a = this._dragon) === null || _a === void 0 ? void 0 : _a.move();
+        if (this._bg)
+            this._bg.tilePositionX += 2;
     };
     return GameScene;
 }(Phaser.Scene));

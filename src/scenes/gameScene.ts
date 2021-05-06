@@ -1,7 +1,9 @@
 import { Dragon } from "../prefabs/dragon";
+import { BrowserResolution } from "../utils";
 
 export class GameScene extends Phaser.Scene {
     private _dragon: Dragon | undefined;
+    private _bg: Phaser.GameObjects.TileSprite | undefined;
     public cursors: Phaser.Types.Input.Keyboard.CursorKeys | undefined;
 
     constructor() {
@@ -19,11 +21,12 @@ export class GameScene extends Phaser.Scene {
     }
 
     private createBackground(): void {
-        this.add.sprite(0, 0, "bg").setOrigin(0, 0);
+        this._bg = this.add.tileSprite(0, 0, BrowserResolution.WIDTH, BrowserResolution.HEIGHT,"bg").setOrigin(0, 0);
     }
 
     // this method is executed every millisecond
     public update() {
         this._dragon?.move();
+        if (this._bg) this._bg.tilePositionX += 2;
     }
 }
