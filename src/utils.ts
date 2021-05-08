@@ -3,14 +3,18 @@ export enum BrowserResolution {
     HEIGHT = 726
 }
 
-// export enum BackgroundResolution {
-//     WIDTH = 2048,
-//     HEIGHT = 720
-// }
+export type StartPosition = {
+    x: number,
+    y: number
+};
 
-export enum StartPosition {
-    x = 150,
-    y = BrowserResolution.HEIGHT / 2
+export const FlyingType = {
+    0: "dragon1",
+    1: "enemy1",
+    2: "enemy2",
+    3: "enemy3",
+    4: "enemy4",
 };
 
 export const DRAGON_SPEED = 500;
+export const ENEMY_SPEED = 250;

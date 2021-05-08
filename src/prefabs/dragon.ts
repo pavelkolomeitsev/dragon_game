@@ -1,21 +1,20 @@
+import { FlyingObject } from "./FlyingObject";
 import { StartPosition } from "../utils";
 import { BrowserResolution } from "../utils";
 import { DRAGON_SPEED } from "../utils";
 
-export class Dragon extends Phaser.GameObjects.Sprite {
+export class Dragon extends FlyingObject {
     private _cursors: Phaser.Types.Input.Keyboard.CursorKeys | undefined;
 
-    constructor(scene: Phaser.Scene, cursors?: Phaser.Types.Input.Keyboard.CursorKeys) {
-        super(scene, StartPosition.x, StartPosition.y, "dragon", "dragon1");
+    constructor(scene: Phaser.Scene, position: StartPosition, flyingType: string, cursors?: Phaser.Types.Input.Keyboard.CursorKeys) {
+        super(scene, position, "dragon", flyingType);
         this.scene = scene;
         this._cursors = cursors;
         this.init();
     }
 
-    private init() {
-        this.scene.add.existing(this); // add sprite to the scene
-        this.scene.physics.add.existing(this); // add sprite as physic object to Phaser engine
-        this.body.enable = true; // the physic body of "dragon" will be available for physic impacts
+    protected init() {
+        super.init();
     }
 
     public move() {

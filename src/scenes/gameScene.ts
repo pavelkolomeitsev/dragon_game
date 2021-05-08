@@ -1,8 +1,12 @@
 import { Dragon } from "../prefabs/dragon";
+import { Enemy } from "../prefabs/enemy";
 import { BrowserResolution } from "../utils";
+import { StartPosition } from "../utils";
+import { FlyingType } from "../utils";
 
 export class GameScene extends Phaser.Scene {
     private _dragon: Dragon | undefined;
+    private _enemy: Enemy | undefined;
     private _bg: Phaser.GameObjects.TileSprite | undefined;
     public cursors: Phaser.Types.Input.Keyboard.CursorKeys | undefined;
 
@@ -17,7 +21,8 @@ export class GameScene extends Phaser.Scene {
     protected create() {
         this.createBackground();
         // hold in object "cursors" boardkeys - left, right, up, down, space, shift
-        this._dragon = new Dragon(this, this.cursors); // pass these cursors to dragon for control of it
+        this._dragon = new Dragon(this, this.getPosition(0), FlyingType[0], this.cursors); // pass these cursors to dragon for control of it
+        this._enemy = new Enemy(this, this.getPosition(1), FlyingType[1]);
     }
 
     private createBackground(): void {
@@ -27,6 +32,38 @@ export class GameScene extends Phaser.Scene {
     // this method is executed every millisecond
     public update() {
         this._dragon?.move();
-        if (this._bg) this._bg.tilePositionX += 2;
+        this._enemy?.move();
+        if (this._bg) this._bg.tilePositionX += 2; // make the background to move
+    }
+
+    private getPosition(position: number): StartPosition {
+        let pos: StartPosition | null = null;
+        switch (position) {
+            case 0:
+                pos = { x: 150, y: BrowserResolution.HEIGHT / 2 };
+                break;
+            case 1:
+                pos = { x: BrowserResolution.WIDTH + 50, y: 60 };
+                break;
+            case 2:
+                pos = { x: BrowserResolution.WIDTH + 50, y: 200 };
+                break;
+            case 3:
+                pos = { x: BrowserResolution.WIDTH + 50, y: 320 };
+                break;
+            case 4:
+                pos = { x: BrowserResolution.WIDTH + 50, y: 440 };
+                break;
+            case 5:
+                pos = { x: BrowserResolution.WIDTH + 50, y: 560 };
+                break;
+            case 6:
+                pos = { x: BrowserResolution.WIDTH + 50, y: 680 };
+                break;
+            default:
+                pos = { x: BrowserResolution.WIDTH + 50, y: 60 };
+                break;
+        }
+        return pos;
     }
 }
