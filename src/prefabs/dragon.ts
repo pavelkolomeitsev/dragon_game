@@ -1,4 +1,4 @@
-import { FlyingObject } from "./FlyingObject";
+import { FlyingObject } from "./flyingObject";
 import { StartPosition } from "../utils";
 import { BrowserResolution } from "../utils";
 import { DRAGON_SPEED } from "../utils";

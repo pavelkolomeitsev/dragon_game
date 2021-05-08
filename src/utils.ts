@@ -1,7 +1,12 @@
 export enum BrowserResolution {
     WIDTH = 1536,
     HEIGHT = 726
-}
+};
+
+export const DragonStartPosition = {
+    x: 150,
+    y: BrowserResolution.HEIGHT / 2
+};
 
 export type StartPosition = {
     x: number,

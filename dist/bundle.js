@@ -35,50 +35,6 @@ exports.gameConfig = {
 
 /***/ }),
 
-/***/ "./src/prefabs/FlyingObject.ts":
-/*!*************************************!*\
-  !*** ./src/prefabs/FlyingObject.ts ***!
-  \*************************************/
-/***/ (function(__unused_webpack_module, exports) {
-
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.FlyingObject = void 0;
-var FlyingObject = (function (_super) {
-    __extends(FlyingObject, _super);
-    function FlyingObject(scene, position, textureType, flyingType) {
-        var _this = _super.call(this, scene, position.x, position.y, textureType, flyingType) || this;
-        _this.scene = scene;
-        _this.init();
-        return _this;
-    }
-    FlyingObject.prototype.init = function () {
-        this.scene.add.existing(this);
-        this.scene.physics.add.existing(this);
-        this.body.enable = true;
-    };
-    return FlyingObject;
-}(Phaser.GameObjects.Sprite));
-exports.FlyingObject = FlyingObject;
-
-
-/***/ }),
-
 /***/ "./src/prefabs/dragon.ts":
 /*!*******************************!*\
   !*** ./src/prefabs/dragon.ts ***!
@@ -103,7 +59,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Dragon = void 0;
-var FlyingObject_1 = __webpack_require__(/*! ./FlyingObject */ "./src/prefabs/FlyingObject.ts");
+var flyingObject_1 = __webpack_require__(/*! ./flyingObject */ "./src/prefabs/flyingObject.ts");
 var utils_1 = __webpack_require__(/*! ../utils */ "./src/utils.ts");
 var utils_2 = __webpack_require__(/*! ../utils */ "./src/utils.ts");
 var Dragon = (function (_super) {
@@ -150,8 +106,52 @@ var Dragon = (function (_super) {
         }
     };
     return Dragon;
-}(FlyingObject_1.FlyingObject));
+}(flyingObject_1.FlyingObject));
 exports.Dragon = Dragon;
+
+
+/***/ }),
+
+/***/ "./src/prefabs/enemies.ts":
+/*!********************************!*\
+  !*** ./src/prefabs/enemies.ts ***!
+  \********************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Enemies = void 0;
+var enemy_1 = __webpack_require__(/*! ../prefabs/enemy */ "./src/prefabs/enemy.ts");
+var Enemies = (function (_super) {
+    __extends(Enemies, _super);
+    function Enemies(world, scene) {
+        var _this = _super.call(this, world, scene) || this;
+        _this.scene = scene;
+        return _this;
+    }
+    Enemies.prototype.createEnemies = function () {
+        var enemy = enemy_1.Enemy.generateEnemy(this.scene);
+        this.add(enemy);
+        enemy.move();
+    };
+    return Enemies;
+}(Phaser.Physics.Arcade.Group));
+exports.Enemies = Enemies;
 
 
 /***/ }),
@@ -180,8 +180,9 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Enemy = void 0;
-var FlyingObject_1 = __webpack_require__(/*! ./FlyingObject */ "./src/prefabs/FlyingObject.ts");
+var flyingObject_1 = __webpack_require__(/*! ./flyingObject */ "./src/prefabs/flyingObject.ts");
 var utils_1 = __webpack_require__(/*! ../utils */ "./src/utils.ts");
+var utils_2 = __webpack_require__(/*! ../utils */ "./src/utils.ts");
 var Enemy = (function (_super) {
     __extends(Enemy, _super);
     function Enemy(scene, position, flyingType) {
@@ -193,12 +194,64 @@ var Enemy = (function (_super) {
     Enemy.prototype.init = function () {
         _super.prototype.init.call(this);
     };
+    Enemy.generateEnemy = function (scene) {
+        var position = {
+            x: utils_2.BrowserResolution.WIDTH + 100,
+            y: Phaser.Math.Between(60, 680)
+        };
+        var helicopterType = "enemy" + Phaser.Math.Between(1, 4);
+        return new Enemy(scene, position, helicopterType);
+    };
     Enemy.prototype.move = function () {
         this.body.setVelocityX(-utils_1.ENEMY_SPEED);
     };
     return Enemy;
-}(FlyingObject_1.FlyingObject));
+}(flyingObject_1.FlyingObject));
 exports.Enemy = Enemy;
+
+
+/***/ }),
+
+/***/ "./src/prefabs/flyingObject.ts":
+/*!*************************************!*\
+  !*** ./src/prefabs/flyingObject.ts ***!
+  \*************************************/
+/***/ (function(__unused_webpack_module, exports) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.FlyingObject = void 0;
+var FlyingObject = (function (_super) {
+    __extends(FlyingObject, _super);
+    function FlyingObject(scene, position, textureType, flyingType) {
+        var _this = _super.call(this, scene, position.x, position.y, textureType, flyingType) || this;
+        _this.scene = scene;
+        _this.init();
+        return _this;
+    }
+    FlyingObject.prototype.init = function () {
+        this.scene.add.existing(this);
+        this.scene.physics.add.existing(this);
+        this.body.enable = true;
+    };
+    return FlyingObject;
+}(Phaser.GameObjects.Sprite));
+exports.FlyingObject = FlyingObject;
 
 
 /***/ }),
@@ -270,9 +323,10 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.GameScene = void 0;
 var dragon_1 = __webpack_require__(/*! ../prefabs/dragon */ "./src/prefabs/dragon.ts");
-var enemy_1 = __webpack_require__(/*! ../prefabs/enemy */ "./src/prefabs/enemy.ts");
+var enemies_1 = __webpack_require__(/*! ../prefabs/enemies */ "./src/prefabs/enemies.ts");
 var utils_1 = __webpack_require__(/*! ../utils */ "./src/utils.ts");
 var utils_2 = __webpack_require__(/*! ../utils */ "./src/utils.ts");
+var utils_3 = __webpack_require__(/*! ../utils */ "./src/utils.ts");
 var GameScene = (function (_super) {
     __extends(GameScene, _super);
     function GameScene() {
@@ -283,48 +337,20 @@ var GameScene = (function (_super) {
     };
     GameScene.prototype.create = function () {
         this.createBackground();
-        this._dragon = new dragon_1.Dragon(this, this.getPosition(0), utils_2.FlyingType[0], this.cursors);
-        this._enemy = new enemy_1.Enemy(this, this.getPosition(1), utils_2.FlyingType[1]);
+        this._dragon = new dragon_1.Dragon(this, utils_2.DragonStartPosition, utils_3.FlyingType[0], this.cursors);
+        this._enemies = new enemies_1.Enemies(this.physics.world, this);
+        this._enemies.createEnemies();
+        this._enemies.createEnemies();
+        this._enemies.createEnemies();
     };
     GameScene.prototype.createBackground = function () {
         this._bg = this.add.tileSprite(0, 0, utils_1.BrowserResolution.WIDTH, utils_1.BrowserResolution.HEIGHT, "bg").setOrigin(0, 0);
     };
     GameScene.prototype.update = function () {
-        var _a, _b;
+        var _a;
         (_a = this._dragon) === null || _a === void 0 ? void 0 : _a.move();
-        (_b = this._enemy) === null || _b === void 0 ? void 0 : _b.move();
         if (this._bg)
             this._bg.tilePositionX += 2;
-    };
-    GameScene.prototype.getPosition = function (position) {
-        var pos = null;
-        switch (position) {
-            case 0:
-                pos = { x: 150, y: utils_1.BrowserResolution.HEIGHT / 2 };
-                break;
-            case 1:
-                pos = { x: utils_1.BrowserResolution.WIDTH + 50, y: 60 };
-                break;
-            case 2:
-                pos = { x: utils_1.BrowserResolution.WIDTH + 50, y: 200 };
-                break;
-            case 3:
-                pos = { x: utils_1.BrowserResolution.WIDTH + 50, y: 320 };
-                break;
-            case 4:
-                pos = { x: utils_1.BrowserResolution.WIDTH + 50, y: 440 };
-                break;
-            case 5:
-                pos = { x: utils_1.BrowserResolution.WIDTH + 50, y: 560 };
-                break;
-            case 6:
-                pos = { x: utils_1.BrowserResolution.WIDTH + 50, y: 680 };
-                break;
-            default:
-                pos = { x: utils_1.BrowserResolution.WIDTH + 50, y: 60 };
-                break;
-        }
-        return pos;
     };
     return GameScene;
 }(Phaser.Scene));
@@ -438,12 +464,17 @@ exports.StartScene = StartScene;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ENEMY_SPEED = exports.DRAGON_SPEED = exports.FlyingType = exports.BrowserResolution = void 0;
+exports.ENEMY_SPEED = exports.DRAGON_SPEED = exports.FlyingType = exports.DragonStartPosition = exports.BrowserResolution = void 0;
 var BrowserResolution;
 (function (BrowserResolution) {
     BrowserResolution[BrowserResolution["WIDTH"] = 1536] = "WIDTH";
     BrowserResolution[BrowserResolution["HEIGHT"] = 726] = "HEIGHT";
 })(BrowserResolution = exports.BrowserResolution || (exports.BrowserResolution = {}));
+;
+exports.DragonStartPosition = {
+    x: 150,
+    y: BrowserResolution.HEIGHT / 2
+};
 exports.FlyingType = {
     0: "dragon1",
     1: "enemy1",
