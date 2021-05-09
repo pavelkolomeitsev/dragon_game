@@ -137,17 +137,36 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Enemies = void 0;
 var enemy_1 = __webpack_require__(/*! ../prefabs/enemy */ "./src/prefabs/enemy.ts");
+var utils_1 = __webpack_require__(/*! ../utils */ "./src/utils.ts");
 var Enemies = (function (_super) {
     __extends(Enemies, _super);
     function Enemies(world, scene) {
         var _this = _super.call(this, world, scene) || this;
+        _this._createdEnemies = 0;
         _this.scene = scene;
+        _this._timer = _this.scene.time.addEvent({
+            delay: 1000,
+            loop: true,
+            callback: _this.tick,
+            callbackScope: _this
+        });
         return _this;
     }
     Enemies.prototype.createEnemies = function () {
-        var enemy = enemy_1.Enemy.generateEnemy(this.scene);
-        this.add(enemy);
+        var enemy = this.getFirstDead();
+        if (!enemy) {
+            enemy = enemy_1.Enemy.generateEnemy(this.scene);
+            this.add(enemy);
+        }
+        else {
+            enemy.reset();
+        }
         enemy.move();
+        ++this._createdEnemies;
+    };
+    Enemies.prototype.tick = function () {
+        var _a;
+        this._createdEnemies < utils_1.ENEMIES_AMOUNT ? this.createEnemies() : (_a = this._timer) === null || _a === void 0 ? void 0 : _a.remove();
     };
     return Enemies;
 }(Phaser.Physics.Arcade.Group));
@@ -193,17 +212,42 @@ var Enemy = (function (_super) {
     }
     Enemy.prototype.init = function () {
         _super.prototype.init.call(this);
+        this.scene.events.on("update", this.update, this);
     };
-    Enemy.generateEnemy = function (scene) {
+    Enemy.generateAttributes = function () {
         var position = {
             x: utils_2.BrowserResolution.WIDTH + 100,
             y: Phaser.Math.Between(60, 680)
         };
         var helicopterType = "enemy" + Phaser.Math.Between(1, 4);
-        return new Enemy(scene, position, helicopterType);
+        return {
+            position: position,
+            type: helicopterType
+        };
+    };
+    Enemy.generateEnemy = function (scene) {
+        var _a = Enemy.generateAttributes(), position = _a.position, type = _a.type;
+        return new Enemy(scene, position, type);
     };
     Enemy.prototype.move = function () {
         this.body.setVelocityX(-utils_1.ENEMY_SPEED);
+    };
+    Enemy.prototype.update = function () {
+        if (this.active && this.body.x < -150) {
+            this.setAlive(false);
+        }
+    };
+    Enemy.prototype.setAlive = function (status) {
+        this.body.enable = status;
+        this.setVisible(status);
+        this.setActive(status);
+    };
+    Enemy.prototype.reset = function () {
+        var _a = Enemy.generateAttributes(), position = _a.position, type = _a.type;
+        this.x = position.x;
+        this.y = position.y;
+        this.setFrame(type);
+        this.setAlive(true);
     };
     return Enemy;
 }(flyingObject_1.FlyingObject));
@@ -339,9 +383,6 @@ var GameScene = (function (_super) {
         this.createBackground();
         this._dragon = new dragon_1.Dragon(this, utils_2.DragonStartPosition, utils_3.FlyingType[0], this.cursors);
         this._enemies = new enemies_1.Enemies(this.physics.world, this);
-        this._enemies.createEnemies();
-        this._enemies.createEnemies();
-        this._enemies.createEnemies();
     };
     GameScene.prototype.createBackground = function () {
         this._bg = this.add.tileSprite(0, 0, utils_1.BrowserResolution.WIDTH, utils_1.BrowserResolution.HEIGHT, "bg").setOrigin(0, 0);
@@ -464,7 +505,7 @@ exports.StartScene = StartScene;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ENEMY_SPEED = exports.DRAGON_SPEED = exports.FlyingType = exports.DragonStartPosition = exports.BrowserResolution = void 0;
+exports.ENEMIES_AMOUNT = exports.ENEMY_SPEED = exports.DRAGON_SPEED = exports.FlyingType = exports.DragonStartPosition = exports.BrowserResolution = void 0;
 var BrowserResolution;
 (function (BrowserResolution) {
     BrowserResolution[BrowserResolution["WIDTH"] = 1536] = "WIDTH";
@@ -484,6 +525,7 @@ exports.FlyingType = {
 };
 exports.DRAGON_SPEED = 500;
 exports.ENEMY_SPEED = 250;
+exports.ENEMIES_AMOUNT = 20;
 
 
 /***/ })
