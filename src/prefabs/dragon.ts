@@ -1,20 +1,31 @@
 import { FlyingObject } from "./flyingObject";
+import { Fires } from "./fires";
 import { StartPosition } from "../utils";
 import { BrowserResolution } from "../utils";
 import { DRAGON_SPEED } from "../utils";
 
 export class Dragon extends FlyingObject {
     private _cursors: Phaser.Types.Input.Keyboard.CursorKeys | undefined;
+    private _fires: Fires | undefined;
+    private _timer: Phaser.Time.TimerEvent | null;
 
     constructor(scene: Phaser.Scene, position: StartPosition, flyingType: string, cursors?: Phaser.Types.Input.Keyboard.CursorKeys) {
         super(scene, position, "dragon", flyingType);
         this.scene = scene;
         this._cursors = cursors;
         this.init();
+        this._timer = this.scene.time.addEvent({
+            delay: 1000,
+            loop: true,
+            callback: this.fire,
+            callbackScope: this
+        });
     }
 
     protected init() {
         super.init();
+        this._fires = new Fires(this.scene.physics.world, this.scene);
+        this._fires.createFire(this);
     }
 
     public move() {
@@ -44,5 +55,9 @@ export class Dragon extends FlyingObject {
         if (this._cursors?.shift.isDown) {
             console.log("Shift key is pressed!");
         }
+    }
+
+    private fire() {
+        this._fires?.createFire(this);
     }
 }

@@ -60,6 +60,7 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Dragon = void 0;
 var flyingObject_1 = __webpack_require__(/*! ./flyingObject */ "./src/prefabs/flyingObject.ts");
+var fires_1 = __webpack_require__(/*! ./fires */ "./src/prefabs/fires.ts");
 var utils_1 = __webpack_require__(/*! ../utils */ "./src/utils.ts");
 var utils_2 = __webpack_require__(/*! ../utils */ "./src/utils.ts");
 var Dragon = (function (_super) {
@@ -69,10 +70,18 @@ var Dragon = (function (_super) {
         _this.scene = scene;
         _this._cursors = cursors;
         _this.init();
+        _this._timer = _this.scene.time.addEvent({
+            delay: 1000,
+            loop: true,
+            callback: _this.tick,
+            callbackScope: _this
+        });
         return _this;
     }
     Dragon.prototype.init = function () {
         _super.prototype.init.call(this);
+        this._fires = new fires_1.Fires(this.scene.physics.world, this.scene);
+        this._fires.createFire(this);
     };
     Dragon.prototype.move = function () {
         var _a, _b, _c, _d, _e, _f;
@@ -104,6 +113,10 @@ var Dragon = (function (_super) {
         if ((_f = this._cursors) === null || _f === void 0 ? void 0 : _f.shift.isDown) {
             console.log("Shift key is pressed!");
         }
+    };
+    Dragon.prototype.tick = function () {
+        var _a;
+        (_a = this._fires) === null || _a === void 0 ? void 0 : _a.createFire(this);
     };
     return Dragon;
 }(flyingObject_1.FlyingObject));
@@ -220,10 +233,7 @@ var Enemy = (function (_super) {
             y: Phaser.Math.Between(60, 680)
         };
         var helicopterType = "enemy" + Phaser.Math.Between(1, 4);
-        return {
-            position: position,
-            type: helicopterType
-        };
+        return { position: position, type: helicopterType };
     };
     Enemy.generateEnemy = function (scene) {
         var _a = Enemy.generateAttributes(), position = _a.position, type = _a.type;
@@ -252,6 +262,106 @@ var Enemy = (function (_super) {
     return Enemy;
 }(flyingObject_1.FlyingObject));
 exports.Enemy = Enemy;
+
+
+/***/ }),
+
+/***/ "./src/prefabs/fire.ts":
+/*!*****************************!*\
+  !*** ./src/prefabs/fire.ts ***!
+  \*****************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Fire = void 0;
+var utils_1 = __webpack_require__(/*! ../utils */ "./src/utils.ts");
+var Fire = (function (_super) {
+    __extends(Fire, _super);
+    function Fire(scene, dragon) {
+        var _this = _super.call(this, scene, dragon.x + 75, dragon.y + 15, "fire") || this;
+        _this.scene = scene;
+        _this.init();
+        return _this;
+    }
+    Fire.prototype.init = function () {
+        this.scene.add.existing(this);
+        this.scene.physics.add.existing(this);
+        this.body.enable = true;
+    };
+    Fire.generateFire = function (scene, dragon) {
+        return new Fire(scene, dragon);
+    };
+    Fire.prototype.move = function () {
+        this.body.setVelocityX(utils_1.ENEMY_SPEED * 2);
+    };
+    return Fire;
+}(Phaser.GameObjects.Sprite));
+exports.Fire = Fire;
+
+
+/***/ }),
+
+/***/ "./src/prefabs/fires.ts":
+/*!******************************!*\
+  !*** ./src/prefabs/fires.ts ***!
+  \******************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Fires = void 0;
+var fire_1 = __webpack_require__(/*! ./fire */ "./src/prefabs/fire.ts");
+var Fires = (function (_super) {
+    __extends(Fires, _super);
+    function Fires(world, scene) {
+        var _this = _super.call(this, world, scene) || this;
+        _this.scene = scene;
+        return _this;
+    }
+    Fires.prototype.createFire = function (dragon) {
+        var fire = this.getFirstDead();
+        if (!fire) {
+            fire = fire_1.Fire.generateFire(this.scene, dragon);
+            this.add(fire);
+        }
+        else {
+        }
+        fire.move();
+    };
+    return Fires;
+}(Phaser.Physics.Arcade.Group));
+exports.Fires = Fires;
 
 
 /***/ }),
@@ -432,6 +542,7 @@ var PreloadScene = (function (_super) {
     PreloadScene.prototype.preload = function () {
         this.load.atlas("dragon", "assets/images/dragon.png", "assets/images/dragon.json");
         this.load.atlas("enemy", "assets/images/enemy.png", "assets/images/enemy.json");
+        this.load.image("fire", "assets/images/fire.png");
     };
     PreloadScene.prototype.create = function () {
         this.scene.start("start-scene");

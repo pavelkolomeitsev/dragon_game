@@ -22,10 +22,7 @@ export class Enemy extends FlyingObject {
         };
         const helicopterType: string = `enemy${Phaser.Math.Between(1, 4)}`;
 
-        return {
-            position: position,
-            type: helicopterType
-        };
+        return { position: position, type: helicopterType };
     }
 
     public static generateEnemy(scene: Phaser.Scene): Enemy {
