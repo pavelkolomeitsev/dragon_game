@@ -70,18 +70,11 @@ var Dragon = (function (_super) {
         _this.scene = scene;
         _this._cursors = cursors;
         _this.init();
-        _this._timer = _this.scene.time.addEvent({
-            delay: 1000,
-            loop: true,
-            callback: _this.tick,
-            callbackScope: _this
-        });
         return _this;
     }
     Dragon.prototype.init = function () {
         _super.prototype.init.call(this);
         this._fires = new fires_1.Fires(this.scene.physics.world, this.scene);
-        this._fires.createFire(this);
     };
     Dragon.prototype.move = function () {
         var _a, _b, _c, _d, _e, _f;
@@ -108,13 +101,13 @@ var Dragon = (function (_super) {
             this.body.setVelocityY(-utils_2.DRAGON_SPEED);
         }
         if ((_e = this._cursors) === null || _e === void 0 ? void 0 : _e.space.isDown) {
-            console.log("Space key is pressed!");
+            this.fire();
         }
         if ((_f = this._cursors) === null || _f === void 0 ? void 0 : _f.shift.isDown) {
             console.log("Shift key is pressed!");
         }
     };
-    Dragon.prototype.tick = function () {
+    Dragon.prototype.fire = function () {
         var _a;
         (_a = this._fires) === null || _a === void 0 ? void 0 : _a.createFire(this);
     };
@@ -243,9 +236,8 @@ var Enemy = (function (_super) {
         this.body.setVelocityX(-utils_1.ENEMY_SPEED);
     };
     Enemy.prototype.update = function () {
-        if (this.active && this.body.x < -150) {
+        if (this.active && this.body.x < -150)
             this.setAlive(false);
-        }
     };
     Enemy.prototype.setAlive = function (status) {
         this.body.enable = status;
@@ -303,12 +295,27 @@ var Fire = (function (_super) {
         this.scene.add.existing(this);
         this.scene.physics.add.existing(this);
         this.body.enable = true;
+        this.scene.events.on("update", this.update, this);
+    };
+    Fire.prototype.update = function () {
+        if (this.active && (this.body.x < -150 || this.body.x > utils_1.BrowserResolution.WIDTH + 100))
+            this.setAlive(false);
     };
     Fire.generateFire = function (scene, dragon) {
         return new Fire(scene, dragon);
     };
     Fire.prototype.move = function () {
         this.body.setVelocityX(utils_1.ENEMY_SPEED * 2);
+    };
+    Fire.prototype.setAlive = function (status) {
+        this.body.enable = status;
+        this.setVisible(status);
+        this.setActive(status);
+    };
+    Fire.prototype.reset = function (parentObject) {
+        this.x = parentObject.x + 75;
+        this.y = parentObject.y + 15;
+        this.setAlive(true);
     };
     return Fire;
 }(Phaser.GameObjects.Sprite));
@@ -346,18 +353,23 @@ var Fires = (function (_super) {
     __extends(Fires, _super);
     function Fires(world, scene) {
         var _this = _super.call(this, world, scene) || this;
+        _this._nextShoot = 0;
         _this.scene = scene;
         return _this;
     }
     Fires.prototype.createFire = function (dragon) {
+        if (this._nextShoot > this.scene.time.now)
+            return;
         var fire = this.getFirstDead();
         if (!fire) {
             fire = fire_1.Fire.generateFire(this.scene, dragon);
             this.add(fire);
         }
         else {
+            fire.reset(dragon);
         }
         fire.move();
+        this._nextShoot = this.scene.time.now + 1000;
     };
     return Fires;
 }(Phaser.Physics.Arcade.Group));

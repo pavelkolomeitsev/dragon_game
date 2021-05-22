@@ -36,9 +36,7 @@ export class Enemy extends FlyingObject {
 
     public update() {
         // this.active means object is active or not
-        if (this.active && this.body.x < -150) {
-            this.setAlive(false);
-        }
+        if (this.active && this.body.x < -150) this.setAlive(false);
     }
 
     private setAlive(status: boolean) {
@@ -47,7 +45,7 @@ export class Enemy extends FlyingObject {
         this.setActive(status); // deactivate game object
     }
 
-    public reset() {
+    public reset(): void {
         const { position, type } = Enemy.generateAttributes();
 
         this.x = position.x;
