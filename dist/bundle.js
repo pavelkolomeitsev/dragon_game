@@ -35,6 +35,120 @@ exports.gameConfig = {
 
 /***/ }),
 
+/***/ "./src/prefabs/bullet.ts":
+/*!*******************************!*\
+  !*** ./src/prefabs/bullet.ts ***!
+  \*******************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Bullet = void 0;
+var flyingObject_1 = __webpack_require__(/*! ./flyingObject */ "./src/prefabs/flyingObject.ts");
+var utils_1 = __webpack_require__(/*! ../utils */ "./src/utils.ts");
+var Bullet = (function (_super) {
+    __extends(Bullet, _super);
+    function Bullet(scene, position) {
+        var _this = _super.call(this, scene, position, "bullet") || this;
+        _this.scene = scene;
+        _this.init();
+        return _this;
+    }
+    Bullet.prototype.init = function () {
+        _super.prototype.init.call(this);
+        this.scene.events.on("update", this.update, this);
+    };
+    Bullet.prototype.update = function () {
+        if (this.active && this.body.x < -150)
+            this.setAlive(false);
+    };
+    Bullet.generateBullet = function (scene, helicopter) {
+        var position = {
+            x: helicopter.x - 45,
+            y: helicopter.y + 10
+        };
+        return new Bullet(scene, position);
+    };
+    Bullet.prototype.move = function () {
+        this.body.setVelocityX(-utils_1.ENEMY_SPEED * 2);
+    };
+    Bullet.prototype.reset = function (parentObject) {
+        this.x = parentObject.x - 45;
+        this.y = parentObject.y + 10;
+        this.setAlive(true);
+    };
+    return Bullet;
+}(flyingObject_1.FlyingObject));
+exports.Bullet = Bullet;
+
+
+/***/ }),
+
+/***/ "./src/prefabs/bullets.ts":
+/*!********************************!*\
+  !*** ./src/prefabs/bullets.ts ***!
+  \********************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Bullets = void 0;
+var bullet_1 = __webpack_require__(/*! ./bullet */ "./src/prefabs/bullet.ts");
+var Bullets = (function (_super) {
+    __extends(Bullets, _super);
+    function Bullets(world, scene) {
+        var _this = _super.call(this, world, scene) || this;
+        _this.scene = scene;
+        return _this;
+    }
+    Bullets.prototype.createBullet = function (helicopter) {
+        var bullet = this.getFirstDead();
+        if (!bullet) {
+            bullet = bullet_1.Bullet.generateBullet(this.scene, helicopter);
+            this.add(bullet);
+        }
+        else {
+            bullet.reset(helicopter);
+        }
+        bullet.move();
+    };
+    return Bullets;
+}(Phaser.Physics.Arcade.Group));
+exports.Bullets = Bullets;
+
+
+/***/ }),
+
 /***/ "./src/prefabs/dragon.ts":
 /*!*******************************!*\
   !*** ./src/prefabs/dragon.ts ***!
@@ -208,16 +322,24 @@ exports.Enemy = void 0;
 var flyingObject_1 = __webpack_require__(/*! ./flyingObject */ "./src/prefabs/flyingObject.ts");
 var utils_1 = __webpack_require__(/*! ../utils */ "./src/utils.ts");
 var utils_2 = __webpack_require__(/*! ../utils */ "./src/utils.ts");
+var bullets_1 = __webpack_require__(/*! ./bullets */ "./src/prefabs/bullets.ts");
 var Enemy = (function (_super) {
     __extends(Enemy, _super);
     function Enemy(scene, position, flyingType) {
         var _this = _super.call(this, scene, position, "enemy", flyingType) || this;
         _this.scene = scene;
         _this.init();
+        _this._timer = _this.scene.time.addEvent({
+            delay: 2000,
+            loop: true,
+            callback: _this.shoot,
+            callbackScope: _this
+        });
         return _this;
     }
     Enemy.prototype.init = function () {
         _super.prototype.init.call(this);
+        this._bullets = new bullets_1.Bullets(this.scene.physics.world, this.scene);
         this.scene.events.on("update", this.update, this);
     };
     Enemy.generateAttributes = function () {
@@ -245,6 +367,10 @@ var Enemy = (function (_super) {
         this.y = position.y;
         this.setFrame(type);
         this.setAlive(true);
+    };
+    Enemy.prototype.shoot = function () {
+        var _a;
+        (_a = this._bullets) === null || _a === void 0 ? void 0 : _a.createBullet(this);
     };
     return Enemy;
 }(flyingObject_1.FlyingObject));
@@ -553,6 +679,7 @@ var PreloadScene = (function (_super) {
         this.load.atlas("dragon", "assets/images/dragon.png", "assets/images/dragon.json");
         this.load.atlas("enemy", "assets/images/enemy.png", "assets/images/enemy.json");
         this.load.image("fire", "assets/images/fire.png");
+        this.load.image("bullet", "assets/images/bullet.png");
     };
     PreloadScene.prototype.create = function () {
         this.scene.start("start-scene");

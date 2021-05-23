@@ -7,19 +7,12 @@ import { DRAGON_SPEED } from "../utils";
 export class Dragon extends FlyingObject {
     private _cursors: Phaser.Types.Input.Keyboard.CursorKeys | undefined;
     private _fires: Fires | undefined;
-    // private _timer: Phaser.Time.TimerEvent | null;
 
     constructor(scene: Phaser.Scene, position: StartPosition, flyingType: string, cursors?: Phaser.Types.Input.Keyboard.CursorKeys) {
         super(scene, position, "dragon", flyingType);
         this.scene = scene;
         this._cursors = cursors;
         this.init();
-        // this._timer = this.scene.time.addEvent({
-        //     delay: 1000,
-        //     loop: true,
-        //     callback: this.fire,
-        //     callbackScope: this
-        // });
     }
 
     protected init() {

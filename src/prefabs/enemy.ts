@@ -2,16 +2,27 @@ import { FlyingObject } from "./flyingObject";
 import { StartPosition } from "../utils";
 import { ENEMY_SPEED } from "../utils";
 import { BrowserResolution } from "../utils";
+import { Bullets } from "./bullets";
 
 export class Enemy extends FlyingObject {
+    private _timer: Phaser.Time.TimerEvent | null;
+    private _bullets: Bullets | undefined;
+
     constructor(scene: Phaser.Scene, position: StartPosition, flyingType: string) {
         super(scene, position, "enemy", flyingType);
         this.scene = scene;
         this.init();
+        this._timer = this.scene.time.addEvent({
+            delay: 2000,
+            loop: true,
+            callback: this.shoot,
+            callbackScope: this
+        });
     }
 
     protected init() {
         super.init();
+        this._bullets = new Bullets(this.scene.physics.world, this.scene);
         this.scene.events.on("update", this.update, this);
     }
 
@@ -46,5 +57,9 @@ export class Enemy extends FlyingObject {
         this.setFrame(type);
         
         this.setAlive(true);
+    }
+
+    private shoot(): void {
+        this._bullets?.createBullet(this);
     }
 }
