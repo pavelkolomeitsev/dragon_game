@@ -4,7 +4,7 @@ import { ENEMY_SPEED } from "../utils";
 import { BrowserResolution } from "../utils";
 
 export class Enemy extends FlyingObject {
-    constructor(scene: Phaser.Scene, position: StartPosition, flyingType: string, ) {
+    constructor(scene: Phaser.Scene, position: StartPosition, flyingType: string) {
         super(scene, position, "enemy", flyingType);
         this.scene = scene;
         this.init();
@@ -38,13 +38,6 @@ export class Enemy extends FlyingObject {
         // this.active means object is active or not
         if (this.active && this.body.x < -150) this.setAlive(false);
     }
-
-    private setAlive(status: boolean) {
-        this.body.enable = status; // deactivate physics body
-        this.setVisible(status); // hide texture
-        this.setActive(status); // deactivate game object
-    }
-
     public reset(): void {
         const { position, type } = Enemy.generateAttributes();
 

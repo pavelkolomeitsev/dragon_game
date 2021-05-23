@@ -56,7 +56,7 @@ export class Dragon extends FlyingObject {
         }
     }
 
-    private fire() {
+    private fire(): void {
         this._fires?.createFire(this);
     }
 }

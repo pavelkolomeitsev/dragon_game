@@ -239,11 +239,6 @@ var Enemy = (function (_super) {
         if (this.active && this.body.x < -150)
             this.setAlive(false);
     };
-    Enemy.prototype.setAlive = function (status) {
-        this.body.enable = status;
-        this.setVisible(status);
-        this.setActive(status);
-    };
     Enemy.prototype.reset = function () {
         var _a = Enemy.generateAttributes(), position = _a.position, type = _a.type;
         this.x = position.x;
@@ -282,19 +277,18 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Fire = void 0;
+var flyingObject_1 = __webpack_require__(/*! ./flyingObject */ "./src/prefabs/flyingObject.ts");
 var utils_1 = __webpack_require__(/*! ../utils */ "./src/utils.ts");
 var Fire = (function (_super) {
     __extends(Fire, _super);
-    function Fire(scene, dragon) {
-        var _this = _super.call(this, scene, dragon.x + 75, dragon.y + 15, "fire") || this;
+    function Fire(scene, position) {
+        var _this = _super.call(this, scene, position, "fire") || this;
         _this.scene = scene;
         _this.init();
         return _this;
     }
     Fire.prototype.init = function () {
-        this.scene.add.existing(this);
-        this.scene.physics.add.existing(this);
-        this.body.enable = true;
+        _super.prototype.init.call(this);
         this.scene.events.on("update", this.update, this);
     };
     Fire.prototype.update = function () {
@@ -302,15 +296,14 @@ var Fire = (function (_super) {
             this.setAlive(false);
     };
     Fire.generateFire = function (scene, dragon) {
-        return new Fire(scene, dragon);
+        var position = {
+            x: dragon.x + 75,
+            y: dragon.y + 15
+        };
+        return new Fire(scene, position);
     };
     Fire.prototype.move = function () {
         this.body.setVelocityX(utils_1.ENEMY_SPEED * 2);
-    };
-    Fire.prototype.setAlive = function (status) {
-        this.body.enable = status;
-        this.setVisible(status);
-        this.setActive(status);
     };
     Fire.prototype.reset = function (parentObject) {
         this.x = parentObject.x + 75;
@@ -318,7 +311,7 @@ var Fire = (function (_super) {
         this.setAlive(true);
     };
     return Fire;
-}(Phaser.GameObjects.Sprite));
+}(flyingObject_1.FlyingObject));
 exports.Fire = Fire;
 
 
@@ -414,6 +407,11 @@ var FlyingObject = (function (_super) {
         this.scene.add.existing(this);
         this.scene.physics.add.existing(this);
         this.body.enable = true;
+    };
+    FlyingObject.prototype.setAlive = function (status) {
+        this.body.enable = status;
+        this.setVisible(status);
+        this.setActive(status);
     };
     return FlyingObject;
 }(Phaser.GameObjects.Sprite));

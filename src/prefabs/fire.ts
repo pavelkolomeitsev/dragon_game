@@ -1,17 +1,16 @@
+import { FlyingObject } from "./flyingObject";
 import { Dragon } from "./dragon";
-import { ENEMY_SPEED, BrowserResolution } from "../utils";
+import { ENEMY_SPEED, BrowserResolution, StartPosition } from "../utils";
 
-export class Fire extends Phaser.GameObjects.Sprite {
-    constructor(scene: Phaser.Scene, dragon: Dragon) {
-        super(scene, dragon.x + 75, dragon.y + 15, "fire");
+export class Fire extends FlyingObject {
+    constructor(scene: Phaser.Scene, position: StartPosition) {
+        super(scene, position, "fire");
         this.scene = scene;
         this.init();
     }
 
     protected init() {
-        this.scene.add.existing(this); // add sprite to the scene
-        this.scene.physics.add.existing(this); // add sprite as physic object to Phaser engine
-        this.body.enable = true;
+        super.init();
         this.scene.events.on("update", this.update, this);
     }
 
@@ -20,17 +19,15 @@ export class Fire extends Phaser.GameObjects.Sprite {
     }
 
     public static generateFire(scene: Phaser.Scene, dragon: Dragon): Fire {
-        return new Fire(scene, dragon);
+        const position: StartPosition = {
+            x: dragon.x + 75,
+            y: dragon.y + 15
+        };
+        return new Fire(scene, position);
     }
 
     public move(): void {
         this.body.setVelocityX(ENEMY_SPEED * 2);
-    }
-
-    private setAlive(status: boolean): void {
-        this.body.enable = status;
-        this.setVisible(status);
-        this.setActive(status);
     }
 
     public reset(parentObject: Dragon): void {
