@@ -188,7 +188,7 @@ var Dragon = (function (_super) {
     }
     Dragon.prototype.init = function () {
         _super.prototype.init.call(this);
-        this._fires = new fires_1.Fires(this.scene.physics.world, this.scene);
+        this.fires = new fires_1.Fires(this.scene.physics.world, this.scene);
     };
     Dragon.prototype.move = function () {
         var _a, _b, _c, _d, _e, _f;
@@ -223,7 +223,7 @@ var Dragon = (function (_super) {
     };
     Dragon.prototype.fire = function () {
         var _a;
-        (_a = this._fires) === null || _a === void 0 ? void 0 : _a.createFire(this);
+        (_a = this.fires) === null || _a === void 0 ? void 0 : _a.createFire(this);
     };
     return Dragon;
 }(flyingObject_1.FlyingObject));
@@ -371,6 +371,11 @@ var Enemy = (function (_super) {
     Enemy.prototype.shoot = function () {
         var _a;
         (_a = this._bullets) === null || _a === void 0 ? void 0 : _a.createBullet(this);
+    };
+    Enemy.prototype.setAlive = function (status) {
+        _super.prototype.setAlive.call(this, status);
+        if (this._timer)
+            !status ? this._timer.paused = true : this._timer.paused = false;
     };
     return Enemy;
 }(flyingObject_1.FlyingObject));
@@ -629,6 +634,15 @@ var GameScene = (function (_super) {
         this.createBackground();
         this._dragon = new dragon_1.Dragon(this, utils_2.DragonStartPosition, utils_3.FlyingType[0], this.cursors);
         this._enemies = new enemies_1.Enemies(this.physics.world, this);
+        this.addOverlap();
+    };
+    GameScene.prototype.addOverlap = function () {
+        var _a;
+        this.physics.add.overlap((_a = this._dragon) === null || _a === void 0 ? void 0 : _a.fires, this._enemies, this.onOverlap, undefined, this);
+    };
+    GameScene.prototype.onOverlap = function (fire, enemy) {
+        fire.setAlive(false);
+        enemy.setAlive(false);
     };
     GameScene.prototype.createBackground = function () {
         this._bg = this.add.tileSprite(0, 0, utils_1.BrowserResolution.WIDTH, utils_1.BrowserResolution.HEIGHT, "bg").setOrigin(0, 0);

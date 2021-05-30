@@ -6,7 +6,7 @@ import { DRAGON_SPEED } from "../utils";
 
 export class Dragon extends FlyingObject {
     private _cursors: Phaser.Types.Input.Keyboard.CursorKeys | undefined;
-    private _fires: Fires | undefined;
+    public fires: Fires;
 
     constructor(scene: Phaser.Scene, position: StartPosition, flyingType: string, cursors?: Phaser.Types.Input.Keyboard.CursorKeys) {
         super(scene, position, "dragon", flyingType);
@@ -17,7 +17,7 @@ export class Dragon extends FlyingObject {
 
     protected init() {
         super.init();
-        this._fires = new Fires(this.scene.physics.world, this.scene);
+        this.fires = new Fires(this.scene.physics.world, this.scene);
     }
 
     public move() {
@@ -50,6 +50,6 @@ export class Dragon extends FlyingObject {
     }
 
     private fire(): void {
-        this._fires?.createFire(this);
+        this.fires?.createFire(this);
     }
 }

@@ -62,4 +62,9 @@ export class Enemy extends FlyingObject {
     private shoot(): void {
         this._bullets?.createBullet(this);
     }
+
+    public setAlive(status: boolean): void {
+        super.setAlive(status);
+        if (this._timer) !status ? this._timer.paused = true : this._timer.paused = false;
+    }
 }

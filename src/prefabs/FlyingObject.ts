@@ -13,7 +13,7 @@ export class FlyingObject extends Phaser.GameObjects.Sprite {
         this.body.enable = true; // the physic body of "dragon" will be available for physic impacts
     }
 
-    protected setAlive(status: boolean): void {
+    public setAlive(status: boolean): void {
         this.body.enable = status;
         this.setVisible(status);
         this.setActive(status);
