@@ -8,9 +8,10 @@ export class Enemy extends FlyingObject {
     private _timer: Phaser.Time.TimerEvent | null;
     private _bullets: Bullets | undefined;
 
-    constructor(scene: Phaser.Scene, position: StartPosition, flyingType: string) {
+    constructor(scene: Phaser.Scene, position: StartPosition, flyingType: string, bullets: Bullets) {
         super(scene, position, "enemy", flyingType);
         this.scene = scene;
+        this._bullets = bullets;
         this.init();
         this._timer = this.scene.time.addEvent({
             delay: 2000,
@@ -22,7 +23,6 @@ export class Enemy extends FlyingObject {
 
     protected init() {
         super.init();
-        this._bullets = new Bullets(this.scene.physics.world, this.scene);
         this.scene.events.on("update", this.update, this);
     }
 
@@ -36,9 +36,9 @@ export class Enemy extends FlyingObject {
         return { position: position, type: helicopterType };
     }
 
-    public static generateEnemy(scene: Phaser.Scene): Enemy {
+    public static generateEnemy(scene: Phaser.Scene, bullets: Bullets): Enemy {
         const { position, type } = Enemy.generateAttributes();
-        return new Enemy(scene, position, type);
+        return new Enemy(scene, position, type, bullets);
     }
 
     public move() {
@@ -65,6 +65,6 @@ export class Enemy extends FlyingObject {
 
     public setAlive(status: boolean): void {
         super.setAlive(status);
-        if (this._timer) !status ? this._timer.paused = true : this._timer.paused = false;
+        if (this._timer) this._timer.paused = !status;
     }
 }

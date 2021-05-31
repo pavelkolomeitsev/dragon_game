@@ -258,12 +258,14 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Enemies = void 0;
 var enemy_1 = __webpack_require__(/*! ../prefabs/enemy */ "./src/prefabs/enemy.ts");
 var utils_1 = __webpack_require__(/*! ../utils */ "./src/utils.ts");
+var bullets_1 = __webpack_require__(/*! ./bullets */ "./src/prefabs/bullets.ts");
 var Enemies = (function (_super) {
     __extends(Enemies, _super);
     function Enemies(world, scene) {
         var _this = _super.call(this, world, scene) || this;
         _this._createdEnemies = 0;
         _this.scene = scene;
+        _this.bullets = new bullets_1.Bullets(_this.scene.physics.world, _this.scene);
         _this._timer = _this.scene.time.addEvent({
             delay: 1000,
             loop: true,
@@ -275,7 +277,7 @@ var Enemies = (function (_super) {
     Enemies.prototype.createEnemies = function () {
         var enemy = this.getFirstDead();
         if (!enemy) {
-            enemy = enemy_1.Enemy.generateEnemy(this.scene);
+            enemy = enemy_1.Enemy.generateEnemy(this.scene, this.bullets);
             this.add(enemy);
         }
         else {
@@ -322,12 +324,12 @@ exports.Enemy = void 0;
 var flyingObject_1 = __webpack_require__(/*! ./flyingObject */ "./src/prefabs/flyingObject.ts");
 var utils_1 = __webpack_require__(/*! ../utils */ "./src/utils.ts");
 var utils_2 = __webpack_require__(/*! ../utils */ "./src/utils.ts");
-var bullets_1 = __webpack_require__(/*! ./bullets */ "./src/prefabs/bullets.ts");
 var Enemy = (function (_super) {
     __extends(Enemy, _super);
-    function Enemy(scene, position, flyingType) {
+    function Enemy(scene, position, flyingType, bullets) {
         var _this = _super.call(this, scene, position, "enemy", flyingType) || this;
         _this.scene = scene;
+        _this._bullets = bullets;
         _this.init();
         _this._timer = _this.scene.time.addEvent({
             delay: 2000,
@@ -339,7 +341,6 @@ var Enemy = (function (_super) {
     }
     Enemy.prototype.init = function () {
         _super.prototype.init.call(this);
-        this._bullets = new bullets_1.Bullets(this.scene.physics.world, this.scene);
         this.scene.events.on("update", this.update, this);
     };
     Enemy.generateAttributes = function () {
@@ -350,9 +351,9 @@ var Enemy = (function (_super) {
         var helicopterType = "enemy" + Phaser.Math.Between(1, 4);
         return { position: position, type: helicopterType };
     };
-    Enemy.generateEnemy = function (scene) {
+    Enemy.generateEnemy = function (scene, bullets) {
         var _a = Enemy.generateAttributes(), position = _a.position, type = _a.type;
-        return new Enemy(scene, position, type);
+        return new Enemy(scene, position, type, bullets);
     };
     Enemy.prototype.move = function () {
         this.body.setVelocityX(-utils_1.ENEMY_SPEED);
@@ -375,7 +376,7 @@ var Enemy = (function (_super) {
     Enemy.prototype.setAlive = function (status) {
         _super.prototype.setAlive.call(this, status);
         if (this._timer)
-            !status ? this._timer.paused = true : this._timer.paused = false;
+            this._timer.paused = !status;
     };
     return Enemy;
 }(flyingObject_1.FlyingObject));
@@ -638,10 +639,20 @@ var GameScene = (function (_super) {
     };
     GameScene.prototype.addOverlap = function () {
         var _a;
-        this.physics.add.overlap((_a = this._dragon) === null || _a === void 0 ? void 0 : _a.fires, this._enemies, this.onOverlap, undefined, this);
+        this.physics.add.overlap((_a = this._dragon) === null || _a === void 0 ? void 0 : _a.fires, this._enemies, this.onOverlapFiresEnemies, undefined, this);
+        this.physics.add.overlap(this._enemies.bullets, this._dragon, this.onOverlapBulletsDragon, undefined, this);
+        this.physics.add.overlap(this._dragon, this._enemies, this.onOverlapDragonEnemies, undefined, this);
     };
-    GameScene.prototype.onOverlap = function (fire, enemy) {
+    GameScene.prototype.onOverlapFiresEnemies = function (fire, enemy) {
         fire.setAlive(false);
+        enemy.setAlive(false);
+    };
+    GameScene.prototype.onOverlapBulletsDragon = function (bullet, dragon) {
+        bullet.setAlive(false);
+        dragon.setAlive(false);
+    };
+    GameScene.prototype.onOverlapDragonEnemies = function (dragon, enemy) {
+        dragon.setAlive(false);
         enemy.setAlive(false);
     };
     GameScene.prototype.createBackground = function () {

@@ -1,3 +1,4 @@
+import { Bullet } from "../prefabs/bullet";
 import { Dragon } from "../prefabs/dragon";
 import { Enemies } from "../prefabs/enemies";
 import { Enemy } from "../prefabs/enemy";
@@ -29,11 +30,23 @@ export class GameScene extends Phaser.Scene {
     }
 
     private addOverlap(): void {
-        this.physics.add.overlap(this._dragon?.fires, this._enemies, this.onOverlap, undefined, this);
+        this.physics.add.overlap(this._dragon?.fires, this._enemies, this.onOverlapFiresEnemies, undefined, this);
+        this.physics.add.overlap(this._enemies.bullets, this._dragon, this.onOverlapBulletsDragon, undefined, this);
+        this.physics.add.overlap(this._dragon, this._enemies, this.onOverlapDragonEnemies, undefined, this);
     }
 
-    private onOverlap(fire: Fire, enemy: Enemy): void {
+    private onOverlapFiresEnemies(fire: Fire, enemy: Enemy): void {
         fire.setAlive(false);
+        enemy.setAlive(false);
+    }
+
+    private onOverlapBulletsDragon(bullet: Bullet, dragon: Dragon): void {
+        bullet.setAlive(false);
+        dragon.setAlive(false);
+    }
+
+    private onOverlapDragonEnemies(dragon: Dragon, enemy: Enemy): void {
+        dragon.setAlive(false);
         enemy.setAlive(false);
     }
 
