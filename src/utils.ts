@@ -23,4 +23,4 @@ export const FlyingType = {
 
 export const DRAGON_SPEED: number = 500;
 export const ENEMY_SPEED: number = 250;
-export const ENEMIES_AMOUNT: number = 20;
+export const ENEMIES_AMOUNT: number = 10;

@@ -23,6 +23,6 @@ export class Fires extends Phaser.Physics.Arcade.Group {
 
         fire.move();
 
-        this._nextShoot = this.scene.time.now + 1000; // instead one fire per second
+        this._nextShoot = this.scene.time.now + 500; // instead one fire per 0.5 second
     }
 }

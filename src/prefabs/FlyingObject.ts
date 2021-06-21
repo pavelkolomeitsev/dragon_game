@@ -17,5 +17,7 @@ export class FlyingObject extends Phaser.GameObjects.Sprite {
         this.body.enable = status;
         this.setVisible(status);
         this.setActive(status);
+
+        if (!status) this.emit("object_killed");
     }
 }

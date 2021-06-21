@@ -264,6 +264,7 @@ var Enemies = (function (_super) {
     function Enemies(world, scene) {
         var _this = _super.call(this, world, scene) || this;
         _this._createdEnemies = 0;
+        _this._killedEnemies = 0;
         _this.scene = scene;
         _this.bullets = new bullets_1.Bullets(_this.scene.physics.world, _this.scene);
         _this._timer = _this.scene.time.addEvent({
@@ -278,6 +279,7 @@ var Enemies = (function (_super) {
         var enemy = this.getFirstDead();
         if (!enemy) {
             enemy = enemy_1.Enemy.generateEnemy(this.scene, this.bullets);
+            enemy.on("object_killed", this.onEnemyKilled, this);
             this.add(enemy);
         }
         else {
@@ -285,6 +287,11 @@ var Enemies = (function (_super) {
         }
         enemy.move();
         ++this._createdEnemies;
+    };
+    Enemies.prototype.onEnemyKilled = function () {
+        ++this._killedEnemies;
+        if (this._killedEnemies >= utils_1.ENEMIES_AMOUNT)
+            this.scene.events.emit("enemies_killed");
     };
     Enemies.prototype.tick = function () {
         var _a;
@@ -494,7 +501,7 @@ var Fires = (function (_super) {
             fire.reset(dragon);
         }
         fire.move();
-        this._nextShoot = this.scene.time.now + 1000;
+        this._nextShoot = this.scene.time.now + 500;
     };
     return Fires;
 }(Phaser.Physics.Arcade.Group));
@@ -544,6 +551,8 @@ var FlyingObject = (function (_super) {
         this.body.enable = status;
         this.setVisible(status);
         this.setActive(status);
+        if (!status)
+            this.emit("object_killed");
     };
     return FlyingObject;
 }(Phaser.GameObjects.Sprite));
@@ -635,7 +644,15 @@ var GameScene = (function (_super) {
         this.createBackground();
         this._dragon = new dragon_1.Dragon(this, utils_2.DragonStartPosition, utils_3.FlyingType[0], this.cursors);
         this._enemies = new enemies_1.Enemies(this.physics.world, this);
+        this.createCompleteEvents();
         this.addOverlap();
+    };
+    GameScene.prototype.createCompleteEvents = function () {
+        this._dragon.once("object_killed", this.onComplete, this);
+        this.events.once("enemies_killed", this.onComplete, this);
+    };
+    GameScene.prototype.onComplete = function () {
+        this.scene.start("start-scene");
     };
     GameScene.prototype.addOverlap = function () {
         var _a;
@@ -798,7 +815,7 @@ exports.FlyingType = {
 };
 exports.DRAGON_SPEED = 500;
 exports.ENEMY_SPEED = 250;
-exports.ENEMIES_AMOUNT = 20;
+exports.ENEMIES_AMOUNT = 10;
 
 
 /***/ })

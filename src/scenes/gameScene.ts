@@ -26,7 +26,17 @@ export class GameScene extends Phaser.Scene {
         // hold in object "cursors" boardkeys - left, right, up, down, space, shift
         this._dragon = new Dragon(this, DragonStartPosition, FlyingType[0], this.cursors); // pass these cursors to dragon for control of it
         this._enemies = new Enemies(this.physics.world, this);
+        this.createCompleteEvents();
         this.addOverlap();
+    }
+
+    private createCompleteEvents(): void {
+        this._dragon.once("object_killed", this.onComplete, this);
+        this.events.once("enemies_killed", this.onComplete, this);
+    }
+
+    private onComplete(): void {
+        this.scene.start("start-scene");
     }
 
     private addOverlap(): void {
