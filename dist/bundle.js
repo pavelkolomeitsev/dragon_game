@@ -184,6 +184,18 @@ var Dragon = (function (_super) {
         _this.scene = scene;
         _this._cursors = cursors;
         _this.init();
+        var frames = _this.scene.anims.generateFrameNames("dragon", {
+            prefix: "dragon",
+            start: 1,
+            end: 6
+        });
+        _this.scene.anims.create({
+            key: "fly",
+            frames: frames,
+            frameRate: 10,
+            repeat: -1,
+        });
+        _this.play("fly");
         return _this;
     }
     Dragon.prototype.init = function () {
@@ -798,7 +810,7 @@ var StartScene = (function (_super) {
     StartScene.prototype.showPopup = function (data) {
         this.add.graphics()
             .fillStyle(0x000000, 0.5)
-            .fillRoundedRect(utils_1.BrowserResolution.WIDTH / 2 - 200, utils_1.BrowserResolution.HEIGHT / 2 - 200, 400, 300, 16);
+            .fillRoundedRect(utils_1.BrowserResolution.WIDTH / 2 - 210, utils_1.BrowserResolution.HEIGHT / 2 - 200, 420, 300, 16);
         var textTitle = data.user_wins ? "Level completed!" : "Game over!";
         var textScore = "";
         textScore = data.score > 1 ? data.score + " enemies" : data.score + " enemy";

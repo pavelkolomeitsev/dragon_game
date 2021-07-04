@@ -9,10 +9,25 @@ export class Dragon extends FlyingObject {
     public fires: Fires;
 
     constructor(scene: Phaser.Scene, position: StartPosition, flyingType: string, cursors?: Phaser.Types.Input.Keyboard.CursorKeys) {
-        super(scene, position, "dragon", flyingType);
+        super(scene, position, "dragon", flyingType); // "dragon" - texture`s name
         this.scene = scene;
         this._cursors = cursors;
         this.init();
+        // 1. this line generate a list of textures. "dragon" (key) has to be the same as a texture`s name
+        const frames: Phaser.Types.Animations.AnimationFrame[] = this.scene.anims.generateFrameNames("dragon", {
+            prefix: "dragon", // it means "dragon1", "dragon2" etc...
+            start: 1,
+            end: 6
+        });
+        // 2. create an animation on the scene with a list of frames
+        this.scene.anims.create({
+            key: "fly", // to identify this animation
+            frames: frames, // a list of textures
+            frameRate: 10, // a number of frames per second
+            repeat: -1, // a number of times of animations, -1 means infinitly
+        });
+        // 3. run animation
+        this.play("fly"); // define by the key
     }
 
     protected init() {

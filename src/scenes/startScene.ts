@@ -34,7 +34,7 @@ export class StartScene extends Phaser.Scene {
     private showPopup(data: StartData): void {
         this.add.graphics()
             .fillStyle(0x000000, 0.5)
-            .fillRoundedRect(BrowserResolution.WIDTH / 2 - 200, BrowserResolution.HEIGHT / 2 - 200, 400, 300, 16);
+            .fillRoundedRect(BrowserResolution.WIDTH / 2 - 210, BrowserResolution.HEIGHT / 2 - 200, 420, 300, 16);
         const textTitle: string = data.user_wins ? "Level completed!" : "Game over!";
         let textScore: string = "";
         textScore = data.score > 1 ? `${data.score} enemies` : `${data.score} enemy`;
