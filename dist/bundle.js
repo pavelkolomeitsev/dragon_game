@@ -635,10 +635,13 @@ var utils_3 = __webpack_require__(/*! ../utils */ "./src/utils.ts");
 var GameScene = (function (_super) {
     __extends(GameScene, _super);
     function GameScene() {
-        return _super.call(this, { key: "game-scene" }) || this;
+        var _this = _super.call(this, { key: "game-scene" }) || this;
+        _this._score = 0;
+        return _this;
     }
     GameScene.prototype.init = function () {
         this.cursors = this.input.keyboard.createCursorKeys();
+        this._score = 0;
     };
     GameScene.prototype.create = function () {
         this.createBackground();
@@ -646,13 +649,18 @@ var GameScene = (function (_super) {
         this._enemies = new enemies_1.Enemies(this.physics.world, this);
         this.createCompleteEvents();
         this.addOverlap();
+        this.showScore();
     };
     GameScene.prototype.createCompleteEvents = function () {
         this._dragon.once("object_killed", this.onComplete, this);
         this.events.once("enemies_killed", this.onComplete, this);
     };
     GameScene.prototype.onComplete = function () {
-        this.scene.start("start-scene");
+        this.scene.start("start-scene", {
+            continue_game: true,
+            score: this._score,
+            user_wins: this._dragon.active
+        });
     };
     GameScene.prototype.addOverlap = function () {
         var _a;
@@ -661,6 +669,9 @@ var GameScene = (function (_super) {
         this.physics.add.overlap(this._dragon, this._enemies, this.onOverlapDragonEnemies, undefined, this);
     };
     GameScene.prototype.onOverlapFiresEnemies = function (fire, enemy) {
+        var _a;
+        ++this._score;
+        (_a = this._scoreText) === null || _a === void 0 ? void 0 : _a.setText("Score: " + this._score);
         fire.setAlive(false);
         enemy.setAlive(false);
     };
@@ -680,6 +691,9 @@ var GameScene = (function (_super) {
         (_a = this._dragon) === null || _a === void 0 ? void 0 : _a.move();
         if (this._bg)
             this._bg.tilePositionX += 2;
+    };
+    GameScene.prototype.showScore = function () {
+        this._scoreText = this.add.text(30, 30, "Score: " + this._score, { fontFamily: "CurseCasual", fontSize: "40px", color: "#E62B0D", stroke: "#000000", strokeThickness: 1, });
     };
     return GameScene;
 }(Phaser.Scene));
@@ -763,8 +777,10 @@ var StartScene = (function (_super) {
     function StartScene() {
         return _super.call(this, { key: "start-scene" }) || this;
     }
-    StartScene.prototype.create = function () {
+    StartScene.prototype.create = function (data) {
         this.createBackground();
+        if (data.continue_game)
+            this.showPopup(data);
         this.createText();
     };
     StartScene.prototype.createBackground = function () {
@@ -772,13 +788,23 @@ var StartScene = (function (_super) {
     };
     StartScene.prototype.createText = function () {
         var _this = this;
-        var _a, _b;
-        this._tapText = this.add.text(utils_1.BrowserResolution.WIDTH / 2, utils_1.BrowserResolution.HEIGHT / 2, "Tap to start", { fontFamily: "CurseCasual", fontSize: "60px", color: "#E62B0D", stroke: "#000000", strokeThickness: 3, }).setOrigin(0.5);
-        (_a = this._tapText) === null || _a === void 0 ? void 0 : _a.setInteractive({ useHandCursor: true });
-        (_b = this._tapText) === null || _b === void 0 ? void 0 : _b.on("pointerdown", function () { return _this.showGameScene(); });
+        var tapText = this.add.text(utils_1.BrowserResolution.WIDTH / 2, utils_1.BrowserResolution.HEIGHT / 2 + 150, "Tap to start", { fontFamily: "CurseCasual", fontSize: "60px", color: "#E62B0D", stroke: "#000000", strokeThickness: 3, }).setOrigin(0.5);
+        tapText.setInteractive({ useHandCursor: true });
+        tapText.on("pointerdown", function () { return _this.showGameScene(); });
     };
     StartScene.prototype.showGameScene = function () {
         this.scene.start("game-scene");
+    };
+    StartScene.prototype.showPopup = function (data) {
+        this.add.graphics()
+            .fillStyle(0x000000, 0.5)
+            .fillRoundedRect(utils_1.BrowserResolution.WIDTH / 2 - 200, utils_1.BrowserResolution.HEIGHT / 2 - 200, 400, 300, 16);
+        var textTitle = data.user_wins ? "Level completed!" : "Game over!";
+        var textScore = "";
+        textScore = data.score > 1 ? data.score + " enemies" : data.score + " enemy";
+        textScore = "You`ve killed " + textScore;
+        this.add.text(utils_1.BrowserResolution.WIDTH / 2, utils_1.BrowserResolution.HEIGHT / 2 - 100, textTitle, { fontFamily: "CurseCasual", fontSize: "55px", color: "#E62B0D", stroke: "#000000", strokeThickness: 3, }).setOrigin(0.5);
+        this.add.text(utils_1.BrowserResolution.WIDTH / 2, utils_1.BrowserResolution.HEIGHT / 2, textScore, { fontFamily: "CurseCasual", fontSize: "40px", color: "#E62B0D", stroke: "#000000", strokeThickness: 3, }).setOrigin(0.5);
     };
     return StartScene;
 }(Phaser.Scene));

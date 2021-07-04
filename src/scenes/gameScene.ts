@@ -11,14 +11,17 @@ export class GameScene extends Phaser.Scene {
     private _dragon: Dragon;
     private _enemies: Enemies;
     private _bg: Phaser.GameObjects.TileSprite;
+    private _score: number = 0;
+    private _scoreText: Phaser.GameObjects.Text | null;
     public cursors: Phaser.Types.Input.Keyboard.CursorKeys;
 
     constructor() {
-        super({key: "game-scene"});
+        super({ key: "game-scene" });
     }
 
     protected init() {
         this.cursors = this.input.keyboard.createCursorKeys();
+        this._score = 0;
     }
 
     protected create() {
@@ -28,6 +31,7 @@ export class GameScene extends Phaser.Scene {
         this._enemies = new Enemies(this.physics.world, this);
         this.createCompleteEvents();
         this.addOverlap();
+        this.showScore();
     }
 
     private createCompleteEvents(): void {
@@ -36,7 +40,12 @@ export class GameScene extends Phaser.Scene {
     }
 
     private onComplete(): void {
-        this.scene.start("start-scene");
+        this.scene.start("start-scene", {
+            continue_game: true,
+            score: this._score,
+            user_wins: this._dragon.active
+        });
+        // this._score = 0;
     }
 
     private addOverlap(): void {
@@ -46,6 +55,8 @@ export class GameScene extends Phaser.Scene {
     }
 
     private onOverlapFiresEnemies(fire: Fire, enemy: Enemy): void {
+        ++this._score;
+        this._scoreText?.setText(`Score: ${this._score}`);
         fire.setAlive(false);
         enemy.setAlive(false);
     }
@@ -68,5 +79,12 @@ export class GameScene extends Phaser.Scene {
     public update() {
         this._dragon?.move();
         if (this._bg) this._bg.tilePositionX += 2; // make the background to move
+    }
+
+    private showScore(): void {
+        this._scoreText = this.add.text(
+            30, 30, `Score: ${this._score}`,
+            { fontFamily: "CurseCasual", fontSize: "40px", color: "#E62B0D", stroke: "#000000", strokeThickness: 1, }
+        );
     }
 }

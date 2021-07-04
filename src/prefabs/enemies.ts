@@ -20,7 +20,7 @@ export class Enemies extends Phaser.Physics.Arcade.Group {
         });
     }
 
-    private createEnemies() {
+    private createEnemies(): void {
         let enemy: Enemy = this.getFirstDead();
 
         if (!enemy) {
@@ -40,7 +40,7 @@ export class Enemies extends Phaser.Physics.Arcade.Group {
         if (this._killedEnemies >= ENEMIES_AMOUNT) this.scene.events.emit("enemies_killed");
     }
 
-    private tick() {
+    private tick(): void {
         this._createdEnemies < ENEMIES_AMOUNT ? this.createEnemies() : this._timer?.remove();
     }
 }

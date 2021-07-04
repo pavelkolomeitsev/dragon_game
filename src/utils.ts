@@ -13,6 +13,12 @@ export type StartPosition = {
     y: number
 };
 
+export type StartData = {
+    continue_game: boolean,
+    score: number,
+    user_wins: boolean
+};
+
 export const FlyingType = {
     0: "dragon1",
     1: "enemy1",
