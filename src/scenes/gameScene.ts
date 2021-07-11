@@ -1,11 +1,10 @@
+import { Boom } from "../prefabs/boom";
 import { Bullet } from "../prefabs/bullet";
 import { Dragon } from "../prefabs/dragon";
 import { Enemies } from "../prefabs/enemies";
 import { Enemy } from "../prefabs/enemy";
 import { Fire } from "../prefabs/fire";
-import { BrowserResolution } from "../utils";
-import { DragonStartPosition } from "../utils";
-import { FlyingType } from "../utils";
+import { BrowserResolution, Sounds, DragonStartPosition, FlyingType } from "../utils";
 
 export class GameScene extends Phaser.Scene {
     private _dragon: Dragon;
@@ -13,6 +12,7 @@ export class GameScene extends Phaser.Scene {
     private _bg: Phaser.GameObjects.TileSprite;
     private _score: number = 0;
     private _scoreText: Phaser.GameObjects.Text | null;
+    private _sounds: Sounds | null;
     public cursors: Phaser.Types.Input.Keyboard.CursorKeys;
 
     constructor() {
@@ -26,6 +26,7 @@ export class GameScene extends Phaser.Scene {
 
     protected create() {
         this.createBackground();
+        if (!this._sounds) this.createSounds();
         // hold in object "cursors" boardkeys - left, right, up, down, space, shift
         this._dragon = new Dragon(this, DragonStartPosition, FlyingType[0], this.cursors); // pass these cursors to dragon for control of it
         this._enemies = new Enemies(this.physics.world, this);
@@ -57,6 +58,8 @@ export class GameScene extends Phaser.Scene {
     private onOverlapFiresEnemies(fire: Fire, enemy: Enemy): void {
         ++this._score;
         this._scoreText?.setText(`Score: ${this._score}`);
+        Boom.generateBoom(this, enemy);
+        this._sounds?.boom.play();
         fire.setAlive(false);
         enemy.setAlive(false);
     }
@@ -67,12 +70,22 @@ export class GameScene extends Phaser.Scene {
     }
 
     private onOverlapDragonEnemies(dragon: Dragon, enemy: Enemy): void {
+        Boom.generateBoom(this, enemy);
+        this._sounds?.boom.play();
         dragon.setAlive(false);
         enemy.setAlive(false);
     }
 
     private createBackground(): void {
         this._bg = this.add.tileSprite(0, 0, BrowserResolution.WIDTH, BrowserResolution.HEIGHT,"bg").setOrigin(0, 0);
+    }
+
+    private createSounds(): void {
+        this._sounds = {
+            theme: this.sound.add("theme", { volume: 0.4, loop: true }),
+            boom: this.sound.add("boom", {volume: 0.3})
+        };
+        this._sounds.theme.play();
     }
 
     // this method is executed every millisecond

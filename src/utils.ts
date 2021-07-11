@@ -13,6 +13,11 @@ export type StartPosition = {
     y: number
 };
 
+export type Sounds = {
+    theme: Phaser.Sound.BaseSound,
+    boom: Phaser.Sound.BaseSound
+};
+
 export type StartData = {
     continue_game: boolean,
     score: number,

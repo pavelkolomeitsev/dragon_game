@@ -35,6 +35,72 @@ exports.gameConfig = {
 
 /***/ }),
 
+/***/ "./src/prefabs/boom.ts":
+/*!*****************************!*\
+  !*** ./src/prefabs/boom.ts ***!
+  \*****************************/
+/***/ (function(__unused_webpack_module, exports) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Boom = void 0;
+var Boom = (function (_super) {
+    __extends(Boom, _super);
+    function Boom(scene, position, textureType) {
+        var _this = _super.call(this, scene, position.x, position.y, textureType) || this;
+        _this.scene = scene;
+        _this.init();
+        _this.boomAnimation();
+        return _this;
+    }
+    Boom.prototype.init = function () {
+        this.scene.add.existing(this);
+    };
+    Boom.prototype.boomAnimation = function () {
+        var _this = this;
+        var frames = this.scene.anims.generateFrameNames("boom", {
+            prefix: "boom",
+            start: 1,
+            end: 4
+        });
+        this.scene.anims.create({
+            key: "boom-anim",
+            frames: frames,
+            frameRate: 10,
+            repeat: 0,
+        });
+        this.play("boom-anim");
+        this.once(Phaser.Animations.Events.ANIMATION_COMPLETE, function () { return _this.destroy(); });
+    };
+    Boom.generateBoom = function (scene, enemy) {
+        var position = {
+            x: enemy.x,
+            y: enemy.y
+        };
+        new Boom(scene, position, "boom");
+    };
+    return Boom;
+}(Phaser.GameObjects.Sprite));
+exports.Boom = Boom;
+
+
+/***/ }),
+
 /***/ "./src/prefabs/bullet.ts":
 /*!*******************************!*\
   !*** ./src/prefabs/bullet.ts ***!
@@ -184,18 +250,7 @@ var Dragon = (function (_super) {
         _this.scene = scene;
         _this._cursors = cursors;
         _this.init();
-        var frames = _this.scene.anims.generateFrameNames("dragon", {
-            prefix: "dragon",
-            start: 1,
-            end: 6
-        });
-        _this.scene.anims.create({
-            key: "fly",
-            frames: frames,
-            frameRate: 10,
-            repeat: -1,
-        });
-        _this.play("fly");
+        _this.dragonFlyAnimation();
         return _this;
     }
     Dragon.prototype.init = function () {
@@ -236,6 +291,20 @@ var Dragon = (function (_super) {
     Dragon.prototype.fire = function () {
         var _a;
         (_a = this.fires) === null || _a === void 0 ? void 0 : _a.createFire(this);
+    };
+    Dragon.prototype.dragonFlyAnimation = function () {
+        var frames = this.scene.anims.generateFrameNames("dragon", {
+            prefix: "dragon",
+            start: 1,
+            end: 6
+        });
+        this.scene.anims.create({
+            key: "fly",
+            frames: frames,
+            frameRate: 10,
+            repeat: -1,
+        });
+        this.play("fly");
     };
     return Dragon;
 }(flyingObject_1.FlyingObject));
@@ -639,11 +708,10 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.GameScene = void 0;
+var boom_1 = __webpack_require__(/*! ../prefabs/boom */ "./src/prefabs/boom.ts");
 var dragon_1 = __webpack_require__(/*! ../prefabs/dragon */ "./src/prefabs/dragon.ts");
 var enemies_1 = __webpack_require__(/*! ../prefabs/enemies */ "./src/prefabs/enemies.ts");
 var utils_1 = __webpack_require__(/*! ../utils */ "./src/utils.ts");
-var utils_2 = __webpack_require__(/*! ../utils */ "./src/utils.ts");
-var utils_3 = __webpack_require__(/*! ../utils */ "./src/utils.ts");
 var GameScene = (function (_super) {
     __extends(GameScene, _super);
     function GameScene() {
@@ -657,7 +725,9 @@ var GameScene = (function (_super) {
     };
     GameScene.prototype.create = function () {
         this.createBackground();
-        this._dragon = new dragon_1.Dragon(this, utils_2.DragonStartPosition, utils_3.FlyingType[0], this.cursors);
+        if (!this._sounds)
+            this.createSounds();
+        this._dragon = new dragon_1.Dragon(this, utils_1.DragonStartPosition, utils_1.FlyingType[0], this.cursors);
         this._enemies = new enemies_1.Enemies(this.physics.world, this);
         this.createCompleteEvents();
         this.addOverlap();
@@ -681,9 +751,11 @@ var GameScene = (function (_super) {
         this.physics.add.overlap(this._dragon, this._enemies, this.onOverlapDragonEnemies, undefined, this);
     };
     GameScene.prototype.onOverlapFiresEnemies = function (fire, enemy) {
-        var _a;
+        var _a, _b;
         ++this._score;
         (_a = this._scoreText) === null || _a === void 0 ? void 0 : _a.setText("Score: " + this._score);
+        boom_1.Boom.generateBoom(this, enemy);
+        (_b = this._sounds) === null || _b === void 0 ? void 0 : _b.boom.play();
         fire.setAlive(false);
         enemy.setAlive(false);
     };
@@ -692,11 +764,21 @@ var GameScene = (function (_super) {
         dragon.setAlive(false);
     };
     GameScene.prototype.onOverlapDragonEnemies = function (dragon, enemy) {
+        var _a;
+        boom_1.Boom.generateBoom(this, enemy);
+        (_a = this._sounds) === null || _a === void 0 ? void 0 : _a.boom.play();
         dragon.setAlive(false);
         enemy.setAlive(false);
     };
     GameScene.prototype.createBackground = function () {
         this._bg = this.add.tileSprite(0, 0, utils_1.BrowserResolution.WIDTH, utils_1.BrowserResolution.HEIGHT, "bg").setOrigin(0, 0);
+    };
+    GameScene.prototype.createSounds = function () {
+        this._sounds = {
+            theme: this.sound.add("theme", { volume: 0.4, loop: true }),
+            boom: this.sound.add("boom", { volume: 0.3 })
+        };
+        this._sounds.theme.play();
     };
     GameScene.prototype.update = function () {
         var _a;
@@ -746,8 +828,11 @@ var PreloadScene = (function (_super) {
     PreloadScene.prototype.preload = function () {
         this.load.atlas("dragon", "assets/images/dragon.png", "assets/images/dragon.json");
         this.load.atlas("enemy", "assets/images/enemy.png", "assets/images/enemy.json");
+        this.load.atlas("boom", "assets/images/boom.png", "assets/images/boom.json");
         this.load.image("fire", "assets/images/fire.png");
         this.load.image("bullet", "assets/images/bullet.png");
+        this.load.audio("theme", "assets/sounds/theme.mp3");
+        this.load.audio("boom", "assets/sounds/boom.mp3");
     };
     PreloadScene.prototype.create = function () {
         this.scene.start("start-scene");

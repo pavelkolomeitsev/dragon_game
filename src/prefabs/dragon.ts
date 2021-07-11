@@ -13,21 +13,7 @@ export class Dragon extends FlyingObject {
         this.scene = scene;
         this._cursors = cursors;
         this.init();
-        // 1. this line generate a list of textures. "dragon" (key) has to be the same as a texture`s name
-        const frames: Phaser.Types.Animations.AnimationFrame[] = this.scene.anims.generateFrameNames("dragon", {
-            prefix: "dragon", // it means "dragon1", "dragon2" etc...
-            start: 1,
-            end: 6
-        });
-        // 2. create an animation on the scene with a list of frames
-        this.scene.anims.create({
-            key: "fly", // to identify this animation
-            frames: frames, // a list of textures
-            frameRate: 10, // a number of frames per second
-            repeat: -1, // a number of times of animations, -1 means infinitly
-        });
-        // 3. run animation
-        this.play("fly"); // define by the key
+        this.dragonFlyAnimation();
     }
 
     protected init() {
@@ -66,5 +52,23 @@ export class Dragon extends FlyingObject {
 
     private fire(): void {
         this.fires?.createFire(this);
+    }
+
+    private dragonFlyAnimation(): void {
+        // 1. this line generate a list of textures. "dragon" (key) has to be the same as a texture`s name
+        const frames: Phaser.Types.Animations.AnimationFrame[] = this.scene.anims.generateFrameNames("dragon", {
+            prefix: "dragon", // it means "dragon1", "dragon2" etc...
+            start: 1,
+            end: 6
+        });
+        // 2. create an animation on the scene with a list of frames
+        this.scene.anims.create({
+            key: "fly", // to identify this animation
+            frames: frames, // a list of textures
+            frameRate: 10, // a number of frames per second
+            repeat: -1, // a number of times of animations, -1 means infinitly
+        });
+        // 3. run animation
+        this.play("fly"); // define by the key
     }
 }
