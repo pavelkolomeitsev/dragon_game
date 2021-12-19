@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Side scrolling shooter game",
   "scripts": {
-    "start": "lite-server",
+    "start": "lite-server --baseDir='dist'",
     "build": "webpack",
     "prod": "webpack --config webpack.config.prod.js"
   },
